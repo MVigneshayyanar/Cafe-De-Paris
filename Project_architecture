@@ -1,0 +1,280 @@
+# Cafe De Paris — Project Architecture
+
+## Overview
+A full-stack restaurant management ecosystem comprising 4 client interfaces, all consuming a shared REST API.
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Waiter App | Flutter (Android + iOS) |
+| Manager Website | SvelteKit |
+| Owner Website | SvelteKit (separate route/subdomain) |
+| Kitchen Display | SvelteKit (fullscreen web) |
+| API | External REST API (provided separately) |
+| Auth | Phone OTP (Waiter), Email+Password JWT (Manager/Owner) |
+| Real-time | WebSockets (KDS order updates) |
+
+---
+
+## Repository Structure
+
+```
+Cafe De Paris/
+├── Flutter app/                  # Waiter mobile app
+│   ├── lib/
+│   │   ├── main.dart
+│   │   ├── services/
+│   │   │   └── api_service.dart  # API abstraction layer
+│   │   ├── screens/
+│   │   │   ├── auth/
+│   │   │   │   ├── phone_login_screen.dart
+│   │   │   │   └── otp_screen.dart
+│   │   │   ├── service/
+│   │   │   │   └── service_screen.dart
+│   │   │   ├── tables/
+│   │   │   │   ├── tables_screen.dart
+│   │   │   │   └── table_detail_screen.dart
+│   │   │   └── profile/
+│   │   │       └── profile_screen.dart
+│   │   ├── models/
+│   │   │   ├── table.dart
+│   │   │   ├── order.dart
+│   │   │   └── menu_item.dart
+│   │   └── widgets/
+│   │       ├── order_card.dart
+│   │       ├── status_badge.dart
+│   │       └── menu_item_card.dart
+│   └── pubspec.yaml
+│
+├── Svelte Website/               # Manager + Owner + KDS
+│   ├── src/
+│   │   ├── lib/
+│   │   │   ├── api.js            # API abstraction layer (swap base URL here)
+│   │   │   ├── stores/
+│   │   │   │   ├── auth.js
+│   │   │   │   └── notifications.js
+│   │   │   └── components/
+│   │   │       ├── shared/
+│   │   │       │   ├── Sidebar.svelte
+│   │   │       │   ├── TopBar.svelte
+│   │   │       │   ├── KpiCard.svelte
+│   │   │       │   ├── StatusBadge.svelte
+│   │   │       │   └── DataTable.svelte
+│   │   │       ├── manager/
+│   │   │       │   ├── InventoryTable.svelte
+│   │   │       │   ├── PayablesTable.svelte
+│   │   │       │   ├── VendorCard.svelte
+│   │   │       │   └── ScanBillUploader.svelte
+│   │   │       └── owner/
+│   │   │           ├── RevenueChart.svelte
+│   │   │           ├── SalesDonut.svelte
+│   │   │           └── PeakHoursChart.svelte
+│   │   └── routes/
+│   │       ├── +layout.svelte
+│   │       ├── manager/
+│   │       │   ├── login/+page.svelte
+│   │       │   ├── dashboard/+page.svelte
+│   │       │   ├── inventory/+page.svelte
+│   │       │   ├── scan-bills/+page.svelte
+│   │       │   ├── payables/+page.svelte
+│   │       │   ├── vendors/+page.svelte
+│   │       │   └── alerts/+page.svelte
+│   │       ├── owner/
+│   │       │   ├── login/+page.svelte
+│   │       │   ├── overview/+page.svelte
+│   │       │   ├── revenue/+page.svelte
+│   │       │   ├── sales-performance/+page.svelte
+│   │       │   ├── inventory-insights/+page.svelte
+│   │       │   └── reports/+page.svelte
+│   │       └── kitchen/
+│   │           └── display/+page.svelte
+│   ├── package.json
+│   └── svelte.config.js
+│
+└── Project_architecture.md       # This file
+```
+
+---
+
+## API Abstraction Layer
+
+All API calls go through a single file. **Swap `BASE_URL` when the real API is ready.**
+
+### `Svelte Website/src/lib/api.js`
+```js
+const BASE_URL = 'https://api.cafedeparis.com/v1'; // ← swap here
+
+const get = (path) => fetch(`${BASE_URL}${path}`, { headers: authHeaders() }).then(r => r.json());
+const post = (path, body) => fetch(`${BASE_URL}${path}`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(body) }).then(r => r.json());
+const patch = (path, body) => fetch(`${BASE_URL}${path}`, { method: 'PATCH', headers: authHeaders(), body: JSON.stringify(body) }).then(r => r.json());
+
+export const api = {
+  // Auth
+  sendOtp: (phone) => post('/auth/otp/send', { phone }),
+  verifyOtp: (phone, code) => post('/auth/otp/verify', { phone, code }),
+  managerLogin: (email, password) => post('/auth/manager/login', { email, password }),
+  ownerLogin: (email, password) => post('/auth/owner/login', { email, password }),
+
+  // Tables
+  getTables: () => get('/tables'),
+  getTable: (id) => get(`/tables/${id}`),
+
+  // Menu
+  getMenu: (category) => get(`/menu?category=${category}`),
+
+  // Orders
+  getOrders: () => get('/orders'),
+  sendToKitchen: (tableId, items) => post('/orders', { tableId, items }),
+  markServed: (orderId) => patch(`/orders/${orderId}/served`),
+
+  // Inventory
+  getInventory: () => get('/inventory'),
+  addInventoryItem: (item) => post('/inventory', item),
+
+  // Bills
+  scanBill: (imageBase64) => post('/bills/scan', { image: imageBase64 }),
+  confirmBill: (billData) => post('/bills/confirm', billData),
+
+  // Payables
+  getPayables: () => get('/payables'),
+  markPaid: (id) => patch(`/payables/${id}/paid`),
+
+  // Vendors
+  getVendors: () => get('/vendors'),
+  addVendor: (vendor) => post('/vendors', vendor),
+
+  // Analytics (Owner)
+  getOverview: (date) => get(`/analytics/overview?date=${date}`),
+  getRevenue: (period) => get(`/analytics/revenue?period=${period}`),
+  getSalesPerformance: () => get('/analytics/sales'),
+  getInventoryInsights: () => get('/analytics/inventory'),
+  getReports: () => get('/reports'),
+
+  // KDS
+  getKitchenOrders: () => get('/kitchen/orders'),
+  startOrder: (id) => patch(`/kitchen/orders/${id}/start`),
+  readyOrder: (id) => patch(`/kitchen/orders/${id}/ready`),
+
+  // Alerts
+  getAlerts: () => get('/alerts'),
+};
+```
+
+### `Flutter app/lib/services/api_service.dart`
+```dart
+const String baseUrl = 'https://api.cafedeparis.com/v1'; // ← swap here
+
+class ApiService {
+  // Auth
+  Future<Map> sendOtp(String phone) async { ... }
+  Future<Map> verifyOtp(String phone, String code) async { ... }
+
+  // Tables
+  Future<List<Table>> getTables() async { ... }
+  Future<Table> getTable(String id) async { ... }
+
+  // Menu
+  Future<List<MenuItem>> getMenu(String category) async { ... }
+
+  // Orders
+  Future<List<Order>> getOrders() async { ... }
+  Future<void> sendToKitchen(String tableId, List items) async { ... }
+  Future<void> markServed(String orderId) async { ... }
+}
+```
+
+---
+
+## Design System
+
+```
+Colors:
+  Primary Teal:    #1E5F74
+  Gold Accent:     #C9A84C
+  Background:      #FAF8F5
+  Success Green:   #38A169
+  Warning Orange:  #D97706
+  Error Red:       #E53E3E
+  Text Primary:    #1A1A1A
+  Text Secondary:  #6B7280
+
+Typography:
+  Display/Headings: Playfair Display
+  Body/UI:          DM Sans
+
+Status Badge Colors:
+  Available:   purple  (#7C3AED bg tint)
+  Ordering:    blue    (#2563EB bg tint)
+  Preparing:   orange  (#D97706 bg tint)
+  Ready:       green   (#38A169 bg tint)
+  Billing:     pink    (#DB2777 bg tint)
+
+Border Radius:  12px (cards), 8px (buttons), 999px (badges)
+Shadow:         0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.06)
+```
+
+---
+
+## Screen → API Endpoint Map
+
+| Screen | Endpoint(s) |
+|---|---|
+| Waiter: Service | `GET /orders` |
+| Waiter: Mark Served | `PATCH /orders/:id/served` |
+| Waiter: Tables | `GET /tables` |
+| Waiter: Table Detail / Menu | `GET /menu?category=X`, `POST /orders` |
+| Manager: Dashboard | `GET /inventory` (low stock), `GET /payables`, `GET /alerts` |
+| Manager: Inventory | `GET /inventory`, `POST /inventory` |
+| Manager: Scan Bills | `POST /bills/scan`, `POST /bills/confirm` |
+| Manager: Payables | `GET /payables`, `PATCH /payables/:id/paid` |
+| Manager: Vendors | `GET /vendors`, `POST /vendors` |
+| Owner: Overview | `GET /analytics/overview` |
+| Owner: Revenue | `GET /analytics/revenue` |
+| Owner: Sales | `GET /analytics/sales` |
+| Owner: Inventory Insights | `GET /analytics/inventory` |
+| Owner: Reports | `GET /reports` |
+| KDS | `GET /kitchen/orders` (WebSocket), `PATCH /kitchen/orders/:id/start`, `PATCH /kitchen/orders/:id/ready` |
+
+---
+
+## Real-time (WebSockets)
+
+KDS requires live order updates. Connect to:
+```
+wss://api.cafedeparis.com/v1/kitchen/ws
+```
+Events:
+- `order.new` → add card to New Orders column
+- `order.updated` → move card between columns
+- `order.removed` → remove card
+
+---
+
+## Auth Flow
+
+**Waiter (Flutter):**
+1. Enter phone → `POST /auth/otp/send`
+2. Enter 4-digit OTP → `POST /auth/otp/verify` → returns JWT
+3. Store JWT in secure storage, attach as `Authorization: Bearer <token>`
+
+**Manager / Owner (Svelte):**
+1. Enter email + password → `POST /auth/manager/login` or `/auth/owner/login` → returns JWT
+2. Store in `localStorage`, attach as `Authorization: Bearer <token>`
+
+---
+
+## Deployment
+
+| App | Platform |
+|---|---|
+| Flutter App | Google Play + App Store |
+| Manager Website | Vercel (manager.cafedeparis.com) |
+| Owner Website | Vercel (owner.cafedeparis.com) |
+| KDS | Vercel (kds.cafedeparis.com) — fullscreen Chrome kiosk |
+
+---
+
+*Last updated: May 2026*
