@@ -13,8 +13,8 @@
     isLoading = true;
     error = '';
     try {
-      const result = await api.managerLogin(email, password);
-      login(result.token);
+      await api.managerLogin(email, password);
+      login();
       goto('/manager/dashboard');
     } catch (e) {
       error = 'Invalid credentials. Please try again.';

@@ -5,7 +5,8 @@
   import { api } from '$lib/api.js';
 
   let data = $state(null);
-  let donutCanvas, peakCanvas;
+  let donutCanvas = $state();
+  let peakCanvas = $state();
   let loading = $state(true);
 
   onMount(async () => {

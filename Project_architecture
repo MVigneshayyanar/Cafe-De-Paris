@@ -13,7 +13,7 @@ A full-stack restaurant management ecosystem comprising 4 client interfaces, all
 | Manager Website | SvelteKit |
 | Owner Website | SvelteKit (separate route/subdomain) |
 | Kitchen Display | SvelteKit (fullscreen web) |
-| API | External REST API (provided separately) |
+| API | Go (Fiber) + PostgreSQL (Neon) |
 | Auth | Phone OTP (Waiter), Email+Password JWT (Manager/Owner) |
 | Real-time | WebSockets (KDS order updates) |
 
@@ -22,86 +22,42 @@ A full-stack restaurant management ecosystem comprising 4 client interfaces, all
 ## Repository Structure
 
 ```
-Cafe De Paris/
-├── Flutter app/                  # Waiter mobile app
+├── Flutter app/                  # Waiter mobile app (Flutter)
 │   ├── lib/
 │   │   ├── main.dart
 │   │   ├── services/
 │   │   │   └── api_service.dart  # API abstraction layer
-│   │   ├── screens/
-│   │   │   ├── auth/
-│   │   │   │   ├── phone_login_screen.dart
-│   │   │   │   └── otp_screen.dart
-│   │   │   ├── service/
-│   │   │   │   └── service_screen.dart
-│   │   │   ├── tables/
-│   │   │   │   ├── tables_screen.dart
-│   │   │   │   └── table_detail_screen.dart
-│   │   │   └── profile/
-│   │   │       └── profile_screen.dart
-│   │   ├── models/
-│   │   │   ├── table.dart
-│   │   │   ├── order.dart
-│   │   │   └── menu_item.dart
-│   │   └── widgets/
-│   │       ├── order_card.dart
-│   │       ├── status_badge.dart
-│   │       └── menu_item_card.dart
 │   └── pubspec.yaml
 │
-├── Svelte Website/               # Manager + Owner + KDS
+├── Svelte Website/               # Admin Portals (SvelteKit)
 │   ├── src/
-│   │   ├── lib/
-│   │   │   ├── api.js            # API abstraction layer (swap base URL here)
-│   │   │   ├── stores/
-│   │   │   │   ├── auth.js
-│   │   │   │   └── notifications.js
-│   │   │   └── components/
-│   │   │       ├── shared/
-│   │   │       │   ├── Sidebar.svelte
-│   │   │       │   ├── TopBar.svelte
-│   │   │       │   ├── KpiCard.svelte
-│   │   │       │   ├── StatusBadge.svelte
-│   │   │       │   └── DataTable.svelte
-│   │   │       ├── manager/
-│   │   │       │   ├── InventoryTable.svelte
-│   │   │       │   ├── PayablesTable.svelte
-│   │   │       │   ├── VendorCard.svelte
-│   │   │       │   └── ScanBillUploader.svelte
-│   │   │       └── owner/
-│   │   │           ├── RevenueChart.svelte
-│   │   │           ├── SalesDonut.svelte
-│   │   │           └── PeakHoursChart.svelte
-│   │   └── routes/
-│   │       ├── +layout.svelte
-│   │       ├── manager/
-│   │       │   ├── login/+page.svelte
-│   │       │   ├── dashboard/+page.svelte
-│   │       │   ├── inventory/+page.svelte
-│   │       │   ├── scan-bills/+page.svelte
-│   │       │   ├── payables/+page.svelte
-│   │       │   ├── vendors/+page.svelte
-│   │       │   └── alerts/+page.svelte
-│   │       ├── owner/
-│   │       │   ├── login/+page.svelte
-│   │       │   ├── overview/+page.svelte
-│   │       │   ├── revenue/+page.svelte
-│   │       │   ├── sales-performance/+page.svelte
-│   │       │   ├── inventory-insights/+page.svelte
-│   │       │   └── reports/+page.svelte
-│   │       └── kitchen/
-│   │           └── display/+page.svelte
-│   ├── package.json
-│   └── svelte.config.js
+│   │   ├── routes/
+│   │   │   ├── manager/          # Manager Dashboard
+│   │   │   ├── owner/            # Owner Analytics
+│   │   │   └── kitchen/          # KDS Display
+│   └── package.json
 │
-└── Project_architecture.md       # This file
+├── lcdp-server/                  # Backend API (Go)
+│   ├── internal/
+│   │   ├── api/                  # Route handlers
+│   │   ├── sqlc/                 # Database queries (Type-safe)
+│   │   └── config/               # Environment settings
+│   ├── db/
+│   │   ├── migrations/           # SQL migration files
+│   │   └── schema.sql            # Core database schema
+│   ├── docs/
+│   │   └── openapi.yaml          # API Documentation
+│   ├── main.go                   # Server entry point
+│   └── Makefile                  # Build and migration tasks
+│
+└── Project_architecture          # This file
 ```
 
 ---
 
 ## API Abstraction Layer
 
-All API calls go through a single file. **Swap `BASE_URL` when the real API is ready.**
+All API calls go through a single file in each client. The API is hosted at `lcdp-server`.
 
 ### `Svelte Website/src/lib/api.js`
 ```js

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'theme/app_theme.dart';
 import 'screens/auth/phone_login_screen.dart';
+import 'screens/main_navigation.dart';
+import 'services/api_service.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +28,18 @@ class CafeDeParisApp extends StatelessWidget {
       scaffoldMessengerKey: scaffoldMessengerKey,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
-      home: const PhoneLoginScreen(),
+      home: FutureBuilder<bool>(
+        future: ApiService().isLoggedIn(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppColors.primaryTeal)));
+          }
+          if (snapshot.data == true) {
+            return const MainNavigation();
+          }
+          return const PhoneLoginScreen();
+        },
+      ),
     );
   }
 }

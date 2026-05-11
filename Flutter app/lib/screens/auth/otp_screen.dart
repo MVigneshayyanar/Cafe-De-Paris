@@ -42,7 +42,7 @@ class _OtpScreenState extends State<OtpScreen> with SingleTickerProviderStateMix
     try {
       final result = await ApiService().verifyOtp(widget.phoneNumber, code);
       final token = result['token'] as String?;
-      if (token != null) await ApiService().saveToken(token);
+      // Cookie is handled automatically by ApiService interceptor
       if (!mounted) return;
       Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const MainNavigation()), (route) => false);
     } catch (e) {

@@ -119,7 +119,8 @@ class _ServiceScreenState extends State<ServiceScreen> {
                         _header('Awaiting Payment', awaiting.length, AppColors.billingBg, AppColors.billingText),
                         ...awaiting.map((o) => OrderCard(order: o)),
                       ],
-                      if (_orders.isEmpty) _emptyState(),
+                      if (ready.isEmpty && preparing.isEmpty && _byStatus(OrderStatus.newOrder).isEmpty && awaiting.isEmpty) 
+                        _emptyState(),
                     ],
                   ),
                 ),
@@ -146,9 +147,9 @@ class _ServiceScreenState extends State<ServiceScreen> {
         child: const FaIcon(FontAwesomeIcons.solidCircleCheck, size: 40, color: AppColors.readyText),
       ),
       const SizedBox(height: 24),
-      Text('All caught up!', style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+      Text('No order found', style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
       const SizedBox(height: 8),
-      Text('No active orders at the moment', style: GoogleFonts.dmSans(fontSize: 15, color: AppColors.textSecondary)),
+      Text('Your service dashboard is empty', style: GoogleFonts.dmSans(fontSize: 15, color: AppColors.textSecondary)),
     ]),
   );
 }

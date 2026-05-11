@@ -1,5 +1,5 @@
 /// Table model for Cafe De Paris
-enum TableStatus { available, ordered, preparing, ready, eating, billing, billed }
+enum TableStatus { available, ordered, preparing, ready, eating, billed }
 
 class TableModel {
   final String id;
@@ -26,11 +26,10 @@ class TableModel {
   static TableStatus _parseStatus(String s) {
     switch (s.toLowerCase()) {
       case 'available': return TableStatus.available;
-      case 'ordered': case 'ordering': return TableStatus.ordered;
+      case 'new': case 'ordered': case 'ordering': return TableStatus.ordered;
       case 'preparing': return TableStatus.preparing;
-      case 'ready': return TableStatus.ready;
-      case 'eating': return TableStatus.eating;
-      case 'billing': return TableStatus.billing;
+      case 'ready': case 'ready_to_serve': return TableStatus.ready;
+      case 'eating': case 'served': return TableStatus.eating;
       case 'billed': return TableStatus.billed;
       default: return TableStatus.available;
     }

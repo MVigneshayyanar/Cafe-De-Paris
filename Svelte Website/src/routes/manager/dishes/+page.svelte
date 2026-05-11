@@ -66,9 +66,9 @@
     const formattedIngredients = (dish.ingredients || []).map(ing => {
       let q = ing.quantity;
       let selUnit = ing.unit;
-      if (ing.unit === 'kg' && q < 1) { q = q * 1000; selUnit = 'g'; }
-      if (ing.unit === 'L' && q < 1) { q = q * 1000; selUnit = 'ml'; }
-      return { inventoryId: ing.inventoryId, quantity: q, unit: ing.unit, selectedUnit: selUnit };
+      if (ing.inventory_item_unit === 'kg' && q < 1) { q = q * 1000; selUnit = 'g'; }
+      if (ing.inventory_item_unit === 'L' && q < 1) { q = q * 1000; selUnit = 'ml'; }
+      return { inventoryId: ing.inventory_item_id, quantity: q, unit: ing.inventory_item_unit, selectedUnit: selUnit };
     });
     newItem = { ...dish, ingredients: formattedIngredients };
     showAddModal = true;
@@ -148,7 +148,7 @@
                 {#if dish.ingredients && dish.ingredients.length > 0}
                   <ul class="ing-list">
                     {#each dish.ingredients as ing}
-                      <li>{ing.name} ({ing.quantity} {ing.unit})</li>
+                      <li>{ing.inventory_item_name} ({ing.quantity} {ing.inventory_item_unit})</li>
                     {/each}
                   </ul>
                 {:else}

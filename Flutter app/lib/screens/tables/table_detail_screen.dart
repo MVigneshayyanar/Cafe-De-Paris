@@ -101,12 +101,15 @@ class _TableDetailScreenState extends State<TableDetailScreen> {
       debugPrint('[DEBUG] Order sent successfully!');
       
       if (!mounted) return;
-      // removed snackbar to prevent crashes
-      
       setState(() {
         _quantities.clear();
         _isSending = false;
       });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Order sent to kitchen!'), backgroundColor: AppColors.successGreen)
+      );
+      
       navigator.pop();
     } catch (e, stackTrace) {
       debugPrint('[ERROR] _sendToKitchen failed: $e');
@@ -114,7 +117,9 @@ class _TableDetailScreenState extends State<TableDetailScreen> {
       if (!mounted) return;
       setState(() => _isSending = false);
       
-      // removed snackbar to prevent crashes
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e'), backgroundColor: AppColors.errorRed)
+      );
     }
   }
 

@@ -10,36 +10,36 @@
   let alerts = $state([]);
   let loading = $state(true);
   let error = $state('');
-  let inventoryCanvas;
+  let inventoryCanvas = $state();
 
   onMount(async () => {
     try {
       const [inv, pay, al] = await Promise.all([api.getInventory(), api.getPayables(), api.getAlerts()]);
       inventory = inv || []; payables = pay || []; alerts = al || [];
-      
-      await tick();
-
-      if (inventoryCanvas && inventory.length > 0) {
-        new Chart(inventoryCanvas, {
-          type: 'bar',
-          data: {
-            labels: inventory.slice(0, 8).map(i => i.name),
-            datasets: [{
-              label: 'Current Stock',
-              data: $state.snapshot(inventory.slice(0, 8).map(i => i.quantity)),
-              backgroundColor: inventory.slice(0, 8).map(i => i.status === 'critical' ? '#EF4444' : i.status === 'low' ? '#F59E0B' : '#1E5F74'),
-              borderRadius: 4
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true }, x: { grid: { display: false } } }
-          }
-        });
-      }
     } catch (e) { error = e.message; } finally { loading = false; }
+
+    await tick();
+
+    if (inventoryCanvas && inventory.length > 0) {
+      new Chart(inventoryCanvas, {
+        type: 'bar',
+        data: {
+          labels: inventory.slice(0, 8).map(i => i.name),
+          datasets: [{
+            label: 'Current Stock',
+            data: $state.snapshot(inventory.slice(0, 8).map(i => i.quantity)),
+            backgroundColor: inventory.slice(0, 8).map(i => i.status === 'critical' ? '#EF4444' : i.status === 'low' ? '#F59E0B' : '#1E5F74'),
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true }, x: { grid: { display: false } } }
+        }
+      });
+    }
   });
 
   const criticalItems = $derived(inventory.filter(i => i.status === 'critical'));

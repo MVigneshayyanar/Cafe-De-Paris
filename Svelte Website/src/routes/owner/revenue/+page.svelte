@@ -26,7 +26,7 @@
       new Chart(dailyCanvas, {
         type: 'line',
         data: { 
-          labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], 
+          labels: data.dailyLabels || ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], 
           datasets: [{ 
             label: 'Revenue', 
             data: $state.snapshot((data.daily && data.daily.length > 0) ? data.daily : [0,0,0,0,0,0,0]), 

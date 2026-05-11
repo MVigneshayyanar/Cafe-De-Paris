@@ -6,13 +6,11 @@
 const BASE_URL = '/api/v1';
 
 const authHeaders = () => ({
-  'Content-Type': 'application/json',
-  'Authorization': `Bearer ${typeof localStorage !== 'undefined' ? localStorage.getItem('cdp_token') ?? '' : ''}`
+  'Content-Type': 'application/json'
 });
 
 const handle = async (res) => {
   if (res.status === 401) {
-    if (typeof localStorage !== 'undefined') localStorage.removeItem('cdp_token');
     if (typeof window !== 'undefined') window.location.href = '/manager/login';
     throw new Error('Unauthorized');
   }
@@ -21,16 +19,16 @@ const handle = async (res) => {
   return text ? JSON.parse(text) : null;
 };
 
-const get   = (path) => fetch(`${BASE_URL}${path}`, { headers: authHeaders() }).then(handle);
-const post  = (path, body) => fetch(`${BASE_URL}${path}`, { method: 'POST',  headers: authHeaders(), body: JSON.stringify(body) }).then(handle);
-const patch = (path, body) => fetch(`${BASE_URL}${path}`, { method: 'PATCH', headers: authHeaders(), body: body ? JSON.stringify(body) : undefined }).then(handle);
-const del   = (path) => fetch(`${BASE_URL}${path}`, { method: 'DELETE', headers: authHeaders() }).then(handle);
+const get   = (path) => fetch(`${BASE_URL}${path}`, { headers: authHeaders(), credentials: 'include' }).then(handle);
+const post  = (path, body) => fetch(`${BASE_URL}${path}`, { method: 'POST',  headers: authHeaders(), body: JSON.stringify(body), credentials: 'include' }).then(handle);
+const patch = (path, body) => fetch(`${BASE_URL}${path}`, { method: 'PATCH', headers: authHeaders(), body: body ? JSON.stringify(body) : undefined, credentials: 'include' }).then(handle);
+const del   = (path) => fetch(`${BASE_URL}${path}`, { method: 'DELETE', headers: authHeaders(), credentials: 'include' }).then(handle);
 
 export const api = {
   // Auth
   managerLogin:         (email, password) => post('/auth/manager/login', { email, password }),
   ownerLogin:           (email, password) => post('/auth/owner/login', { email, password }),
-  logout:               () => { if (typeof localStorage !== 'undefined') localStorage.removeItem('cdp_token'); },
+  logout:               () => { /* Browser handles cookies, but we could call a logout endpoint */ },
 
   // Tables (CRUD)
   getTables:            () => get('/tables'),
