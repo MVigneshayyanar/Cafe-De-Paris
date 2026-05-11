@@ -1,3 +1,4 @@
+<script>
   import { api } from '$lib/api.js';
 
   let fullName = $state('Owner');
@@ -20,6 +21,7 @@
     catch(e) { alert('Failed to save preferences'); }
     finally { saving = false; }
   }
+</script>
 
 <svelte:head><title>Settings — Owner — Cafe De Paris</title></svelte:head>
 
