@@ -39,6 +39,9 @@ class _TablesScreenState extends State<TablesScreen> {
       if (!mounted) return;
       setState(() { 
         _tables = (data as List).map<TableModel>((t) => TableModel.fromJson(t as Map<String, dynamic>)).toList(); 
+        for (var t in _tables) {
+          debugPrint('[DEBUG] Table ${t.name} status: ${t.status} (raw: ${t.status.name})');
+        }
         _loading = false; 
       });
     } catch (e) {
@@ -69,12 +72,12 @@ class _TablesScreenState extends State<TablesScreen> {
                 itemCount: _tables.length,
                 itemBuilder: (ctx, i) {
                   final table = _tables[i];
-                  final isAvailable = table.status == TableStatus.available;
+                  final canOrder = table.status != TableStatus.billed;
                   final showBilled = table.status == TableStatus.eating;
                   final showAvailable = table.status == TableStatus.billed;
 
                   return GestureDetector(
-                    onTap: isAvailable ? () => Navigator.push(context, MaterialPageRoute(builder: (_) => TableDetailScreen(table: table))).then((_) => _loadTables()) : null,
+                    onTap: canOrder ? () => Navigator.push(context, MaterialPageRoute(builder: (_) => TableDetailScreen(table: table))).then((_) => _loadTables()) : null,
                     child: Container(
                       decoration: BoxDecoration(
                         color: AppColors.cardSurface,

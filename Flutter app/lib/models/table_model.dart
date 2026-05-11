@@ -24,9 +24,9 @@ class TableModel {
   }
 
   static TableStatus _parseStatus(String s) {
-    switch (s.toLowerCase()) {
+    switch (s.toLowerCase().trim()) {
       case 'available': return TableStatus.available;
-      case 'new': case 'ordered': case 'ordering': return TableStatus.ordered;
+      case 'new': case 'new_order': case 'ordered': case 'ordering': return TableStatus.ordered;
       case 'preparing': return TableStatus.preparing;
       case 'ready': case 'ready_to_serve': return TableStatus.ready;
       case 'eating': case 'served': return TableStatus.eating;

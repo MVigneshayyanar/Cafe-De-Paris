@@ -20,19 +20,47 @@ class StatusBadge extends StatelessWidget {
   factory StatusBadge.fromTableStatus(TableStatus status) {
     switch (status) {
       case TableStatus.available:
-        return const StatusBadge(label: 'Available', backgroundColor: AppColors.availableBg, textColor: AppColors.availableText);
+        return const StatusBadge(
+          label: 'Available',
+          backgroundColor: AppColors.availableBg,
+          textColor: AppColors.availableText,
+        );
       case TableStatus.ordered:
-        return const StatusBadge(label: 'Ordered', backgroundColor: AppColors.orderingBg, textColor: AppColors.orderingText);
+        return const StatusBadge(
+          label: 'Ordered',
+          backgroundColor: AppColors.orderingBg,
+          textColor: AppColors.orderingText,
+        );
       case TableStatus.preparing:
-        return const StatusBadge(label: 'Preparing', backgroundColor: AppColors.preparingBg, textColor: AppColors.preparingText);
+        return const StatusBadge(
+          label: 'Preparing',
+          backgroundColor: AppColors.preparingBg,
+          textColor: AppColors.preparingText,
+        );
       case TableStatus.ready:
-        return const StatusBadge(label: 'Ready', backgroundColor: AppColors.readyBg, textColor: AppColors.readyText);
+        return const StatusBadge(
+          label: 'Ready',
+          backgroundColor: AppColors.readyBg,
+          textColor: AppColors.readyText,
+        );
       case TableStatus.eating:
-        return const StatusBadge(label: 'Eating', backgroundColor: AppColors.eatingBg, textColor: AppColors.eatingText);
+        return const StatusBadge(
+          label: 'Eating',
+          backgroundColor: AppColors.eatingBg,
+          textColor: AppColors.eatingText,
+        );
       case TableStatus.billing:
-        return const StatusBadge(label: 'Billing', backgroundColor: AppColors.billingBg, textColor: AppColors.billingText);
+        return const StatusBadge(
+          label: 'Billing',
+          backgroundColor: AppColors.billingBg,
+          textColor: AppColors.billingText,
+        );
       case TableStatus.billed:
-        return const StatusBadge(label: 'Billed', backgroundColor: AppColors.billedBg, textColor: AppColors.billedText);
+        return const StatusBadge(
+          label: 'Billed',
+          backgroundColor: AppColors.billedBg,
+          textColor: AppColors.billedText,
+        );
     }
   }
 
@@ -40,15 +68,35 @@ class StatusBadge extends StatelessWidget {
   factory StatusBadge.fromOrderStatus(OrderStatus status) {
     switch (status) {
       case OrderStatus.newOrder:
-        return const StatusBadge(label: 'New Order', backgroundColor: AppColors.cardSurface, textColor: AppColors.textSecondary);
+        return const StatusBadge(
+          label: 'New Order',
+          backgroundColor: AppColors.cardSurface,
+          textColor: AppColors.textSecondary,
+        );
       case OrderStatus.ready:
-        return const StatusBadge(label: 'Ready to Serve', backgroundColor: AppColors.readyBg, textColor: AppColors.readyText);
+        return const StatusBadge(
+          label: 'Ready to Serve',
+          backgroundColor: AppColors.readyBg,
+          textColor: AppColors.readyText,
+        );
       case OrderStatus.preparing:
-        return const StatusBadge(label: 'Preparing', backgroundColor: AppColors.preparingBg, textColor: AppColors.preparingText);
+        return const StatusBadge(
+          label: 'Preparing',
+          backgroundColor: AppColors.preparingBg,
+          textColor: AppColors.preparingText,
+        );
       case OrderStatus.served:
-        return const StatusBadge(label: 'Served', backgroundColor: AppColors.availableBg, textColor: AppColors.availableText);
+        return const StatusBadge(
+          label: 'Served',
+          backgroundColor: AppColors.availableBg,
+          textColor: AppColors.availableText,
+        );
       case OrderStatus.awaitingPayment:
-        return StatusBadge(label: 'Awaiting Payment', backgroundColor: AppColors.errorRed.withValues(alpha: 0.1), textColor: AppColors.errorRed);
+        return StatusBadge(
+          label: 'Awaiting Payment',
+          backgroundColor: AppColors.errorRed.withValues(alpha: 0.1),
+          textColor: AppColors.errorRed,
+        );
     }
   }
 
